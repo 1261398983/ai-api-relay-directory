@@ -1,0 +1,102 @@
+name: Update rate table
+
+# The repo is a mirror of the directory, so the table is rebuilt from
+# /api/public rather than edited by hand. Nothing here touches affiliate
+# links: the script only reads the public API.
+on:
+  schedule:
+    # 22:00 UTC = 06:00 Asia/Shanghai. GitHub delays scheduled runs under
+    # load, so treat the time as approximate.
+    - cron: "0 22 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# A delayed nightly run must never race a manual one onto the same branch.
+concurrency:
+  group: update-readme
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      # The script retries the API and refuses to write an empty table, so a
+      # failure here means the directory is genuinely unreachable. Letting the
+      # job fail is deliberate: a silent skip would hide a broken site.
+      - name: Regenerate tables from the live directory
+        run: node scripts/build-readme.mjs
+
+      - name: Commit only when something changed
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- README.md README.en.md data/stations.json; then
+            echo "No changes at all." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          # The tables carry a sync date, so a run with no rate movement still
+          # produces a diff. The snapshot carries no timestamp, so diffing it is
+          # what actually distinguishes a rate change from a date bump. Ask the
+          # broadcast script rather than counting markdown rows: it compares the
+          # same structured data a broadcast would report on.
+          verdict=$(node scripts/build-broadcast.mjs --pending)
+          echo "$verdict"
+          status=$(printf '%s' "$verdict" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).status||"unknown")}catch{process.stdout.write("unknown")}})')
+
+          if [ "$status" = "change" ]; then
+            message="chore: sync rate table $(TZ=Asia/Shanghai date +%F)"
+            {
+              echo "### Rates moved"
+              echo
+              echo '```diff'
+              # head closes the pipe early on a large diff, and the SIGPIPE that
+              # gives grep would fail the step under pipefail.
+              git diff --unified=0 -- data/stations.json | grep -E '^[+-] ' | head -40 || true
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$status" = "baseline-only" ]; then
+            message="chore: add rate snapshot baseline $(TZ=Asia/Shanghai date +%F)"
+            echo "Established the snapshot baseline; no prior state to compare." >> "$GITHUB_STEP_SUMMARY"
+          else
+            message="chore: refresh sync date $(TZ=Asia/Shanghai date +%F)"
+            echo "No rate movement; refreshed the sync date only." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md README.en.md data/stations.json
+          git commit -m "$message"
+          git push
+
+      # Runs after the push so it compares two committed snapshots. Broadcast
+      # copy is surfaced here for manual posting -- nothing is auto-published.
+      - name: Emit broadcast copy when rates moved
+        run: |
+          set -euo pipefail
+          result=$(node scripts/build-broadcast.mjs)
+          echo "$result"
+          printf '%s' "$result" | node -e '
+            let s = "";
+            process.stdin.on("data", (d) => (s += d)).on("end", () => {
+              let parsed;
+              try { parsed = JSON.parse(s); } catch { return; }
+              const fs = require("node:fs");
+              const out = process.env.GITHUB_STEP_SUMMARY;
+              if (!out) return;
+              if (parsed.status !== "change" || !parsed.broadcast) {
+                fs.appendFileSync(out, `\nBroadcast: nothing to post (${parsed.status}).\n`);
+                return;
+              }
+              fs.appendFileSync(out, `\n### Telegram broadcast copy\n\n\`\`\`\n${parsed.broadcast}\n\`\`\`\n`);
+            });
+          '
