@@ -1,5 +1,13 @@
 # 宗介中转导航 · 中转站倍率对照表
 
+
+> ### 🔗 本站作者自用的中转站
+>
+> **[RELAY X](https://api.97wl.cc/)** — 一个 [OI] 兼容端点统管 Claude / GPT / Gemini / Grok。
+> 注册只需 QQ 邮箱，无需邀请码、无需外币卡；按量计费，输入输出分开计价，倍率在控制台公开。
+> [[CC] 改两行环境变量即可接入 →](https://api.97wl.cc/)
+
+
 **中文** · [English](README.en.md)
 
 [![stations](https://img.shields.io/badge/stations-13-2563eb)](https://zongjie-nav-pages.pages.dev) [![free tier](https://img.shields.io/badge/free%20tier-3-16a34a)](https://zongjie-nav-pages.pages.dev) [![updated](https://img.shields.io/badge/updated-2026--09--29-6366f1)](https://zongjie-nav-pages.pages.dev)
@@ -63,3 +71,20 @@
 
 > 本表由 [`scripts/build-readme.mjs`](scripts/build-readme.mjs) 自动生成 · 数据快照 2026-09-29 · 共 13 个站点
 > 倍率波动较快，注册前请以各中转站页面为准。
+
+---
+
+### 关于本站作者使用的中转站
+
+本站整理的中转站里，我长期自用的是 **[RELAY X](https://api.97wl.cc/)**：
+
+- **双协议兼容** — [OI] 与 Anthropic 同时支持，[CC] / Codex 零改造
+- **注册门槛低** — QQ 邮箱即可，无需邀请码、无需手机号、无需外币卡
+- **计费透明** — 按量计费，输入输出分开计价，分组与模型倍率在控制台公开
+- **可审计** — 基于开源 Sub2API 面板，每笔调用扣费可明细查询
+- **起充低** — 人民币 10 元起，可以先小额试
+
+👉 **https://api.97wl.cc/**
+
+> 说明：个人部署的第三方 API 转发服务，非上游厂商官方产品。建议按实际用量充值，避免一次性大额预付；重要业务请自备备份线路。
+
