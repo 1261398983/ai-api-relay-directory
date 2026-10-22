@@ -88,3 +88,11 @@
 
 > 说明：个人部署的第三方 API 转发服务，非上游厂商官方产品。建议按实际用量充值，避免一次性大额预付；重要业务请自备备份线路。
 
+---
+
+### 同类站点
+
+[Proxy 清单](https://1261398983.github.io/ai-api-proxy-list/) · [快速接入](https://1261398983.github.io/ai-api-quickstart/) · [免费站点清单](https://1261398983.github.io/ai-coding-free-sites/) · [中转导航](https://1261398983.github.io/ai-api-zhongzhuan/) · [AI 千里目](https://1261398983.github.io/aifreenav/)
+
+**[RELAY X 中转站](https://api.97wl.cc/)** — QQ 邮箱注册 · 按量计费 · 输入输出分开计价
+
