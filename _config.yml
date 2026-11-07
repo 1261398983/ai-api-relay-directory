@@ -1,5 +1,5 @@
-﻿title: Sample Gateway · 逆向工程 | 中转站倍率对照表
-description: Sample Gateway 逆向工程 API 网关：国模（DeepSeek 等）+ Claude / GPT / Gemini。AI API 中转站倍率对照表，每日自动同步。
+﻿title: 示例网关 · 逆向工程 | 中转站倍率对照表
+description: 示例网关 逆向工程 API 网关：国模（DeepSeek 等）+ Claude / GPT / Gemini。AI API 中转站倍率对照表，每日自动同步。
 theme: jekyll-theme-cayman
 plugins:
   - jekyll-seo-tag
